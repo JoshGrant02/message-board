@@ -1,0 +1,20 @@
+services:
+  app:
+    build: .
+    links:
+      - db
+    ports:
+      - "5000:5000"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./api
+  db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    ports:
+      - "32000:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/:ro

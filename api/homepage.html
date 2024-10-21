@@ -1,0 +1,72 @@
+<html></html>
+<body>
+        <div>
+        <h1>This is a SUPER COOL app!</h1>
+        <p id='colors'>These are people's favorite colors:</p>
+        <h2>Create User</h2>
+        <div>
+                <label>Username: </label>
+                <input type='text' id='username'><br>
+                <label>Password: </label>
+                <input type='text' id='password'><br>
+                <label>Your Favorite Color: </label>
+                <input type='text' id='favoriteColor'><br>
+                <label>Your Secret: </label>
+                <input type='text' id='secret'><br>
+                <button id='createAccount'>Create User</button>
+        </div>
+        <h2>Login</h2>
+                <label>Username: </label>
+                <input type='text' id='loginUsername'><br>
+                <label>Password: </label>
+                <input type='text' id='loginPassword'><br>
+                <button id='login'>Login</button>
+                <p id="userSecret">You are not logged in</p>
+        </div>
+        <script>
+                async function getFavoriteColors() {
+                        const response = await fetch(`${window.location.origin}/getFavoriteColors`);
+                        const colors = await response.text();
+                        document.getElementById('colors').innerText = "These are people's favorite colors:" + colors;
+                }
+
+                async function createAccount() {
+                        const body = {
+                                'username': document.getElementById('username').value,
+                                'password': document.getElementById('password').value,
+                                'favoriteColor': document.getElementById('favoriteColor').value,
+                                'secret': document.getElementById('secret').value
+                        };
+                        await fetch(`${window.location.origin}/createUser`,
+                                {
+                                        method: "POST",
+                                        body: JSON.stringify(body)
+                                }
+                        );
+
+                        getFavoriteColors();
+                }
+
+                async function login() {
+                        const body  = {
+                                'username': document.getElementById('loginUsername').value,
+                                'password': document.getElementById('loginPassword').value
+                        };
+                        const response = await fetch(`${window.location.origin}/login`,
+                                {
+                                        method: "POST",
+                                        body: JSON.stringify(body)
+                                }
+                        );
+                        const secret = await response.text();
+
+                        const text = secret == "Invalid credentials" ? secret : "Your secret is: " + secret;
+                        document.getElementById('userSecret').innerText = text;
+                }
+
+                document.getElementById('createAccount').addEventListener('click', createAccount);
+                document.getElementById('login').addEventListener('click', login);
+                getFavoriteColors();
+        </script>
+</body>
+</html>
