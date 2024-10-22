@@ -37,5 +37,10 @@ END //
 CREATE PROCEDURE message_s()
 BEGIN
     SELECT messageId, message, createdWhen, createdWho
-    FROM message;
+    FROM message ORDER BY createdWhen desc;
 END //
+
+-- CREATE INITIAL MESSAGES
+INSERT INTO message (message, createdWhen, createdWho) VALUES 
+('Welcome', '2024-10-20 14:30:00', 'Admin'),
+('This is a message', '2024-10-20 14:31:00', 'Josh') //

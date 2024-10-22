@@ -1,72 +1,86 @@
-<html></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
 <body>
-        <div>
-        <h1>This is a SUPER COOL app!</h1>
-        <p id='colors'>These are people's favorite colors:</p>
-        <h2>Create User</h2>
-        <div>
-                <label>Username: </label>
-                <input type='text' id='username'><br>
-                <label>Password: </label>
-                <input type='text' id='password'><br>
-                <label>Your Favorite Color: </label>
-                <input type='text' id='favoriteColor'><br>
-                <label>Your Secret: </label>
-                <input type='text' id='secret'><br>
-                <button id='createAccount'>Create User</button>
-        </div>
-        <h2>Login</h2>
-                <label>Username: </label>
-                <input type='text' id='loginUsername'><br>
-                <label>Password: </label>
-                <input type='text' id='loginPassword'><br>
-                <button id='login'>Login</button>
-                <p id="userSecret">You are not logged in</p>
-        </div>
-        <script>
-                async function getFavoriteColors() {
-                        const response = await fetch(`${window.location.origin}/getFavoriteColors`);
-                        const colors = await response.text();
-                        document.getElementById('colors').innerText = "These are people's favorite colors:" + colors;
-                }
 
-                async function createAccount() {
-                        const body = {
-                                'username': document.getElementById('username').value,
-                                'password': document.getElementById('password').value,
-                                'favoriteColor': document.getElementById('favoriteColor').value,
-                                'secret': document.getElementById('secret').value
-                        };
-                        await fetch(`${window.location.origin}/createUser`,
-                                {
-                                        method: "POST",
-                                        body: JSON.stringify(body)
-                                }
-                        );
+    <h1>Message Board</h1>
+    <form id="messageForm">
+        <input type="text" id="messageWho" placeholder="Who are you..." required>
+        <input type="text" id="messageInput" placeholder="Type your message here..." required>
+        <button type="submit">Post Message</button>
+    </form>
 
-                        getFavoriteColors();
-                }
+    <h2>Messages</h2>
+    <button id="refreshButton">Refresh Messages</button>
+    <ul id="messagesList"></ul>
 
-                async function login() {
-                        const body  = {
-                                'username': document.getElementById('loginUsername').value,
-                                'password': document.getElementById('loginPassword').value
-                        };
-                        const response = await fetch(`${window.location.origin}/login`,
-                                {
-                                        method: "POST",
-                                        body: JSON.stringify(body)
-                                }
-                        );
-                        const secret = await response.text();
+    <script>
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const messageWho = document.getElementById('messageWho');
+        const messagesList = document.getElementById('messagesList');
+        const siteUrl = window.location.origin
 
-                        const text = secret == "Invalid credentials" ? secret : "Your secret is: " + secret;
-                        document.getElementById('userSecret').innerText = text;
-                }
+        // Function to fetch messages
+        async function fetchMessages() {
+            const response = await fetch(`${siteUrl}/api/messages`);
+            const response_json = await response.json();
+            displayMessages(response_json.messages);
+        }
 
-                document.getElementById('createAccount').addEventListener('click', createAccount);
-                document.getElementById('login').addEventListener('click', login);
-                getFavoriteColors();
-        </script>
+        // Function to display messages
+        function displayMessages(messages) {
+            messagesList.innerHTML = ''; // Clear existing messages
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${msg.createdWho}</strong>: ${msg.message} <em>${msg.createdWhen}</em>`;
+                messagesList.appendChild(li);
+            });
+        }
+
+        // Event listener for form submission
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageData = {
+                message: messageInput.value,
+                createdWhen: new Date().toISOString().slice(0, 19).replace('T', ' '), // Current date and time
+                createdWho: messageWho.value
+            };
+
+            await fetch(`${siteUrl}/api/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(messageData)
+            });
+
+            messageInput.value = ''; // Clear the input field
+            fetchMessages(); // Refresh the message list
+        });
+
+        refreshButton.addEventListener('click', fetchMessages)
+
+        // Initial fetch of messages
+        fetchMessages();
+    </script>
+
 </body>
 </html>

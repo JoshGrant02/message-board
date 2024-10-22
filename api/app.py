@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 
 from contracts.request_contracts import createMessageRequest
 from contracts.response_contracts import getMessagesResponse
@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def get_site():
-    return 'Hello World' #send_file('homepage.html')
+    return send_file('homepage.html')
 
 @app.route('/api/message', methods = ['POST'])
 def post_message():

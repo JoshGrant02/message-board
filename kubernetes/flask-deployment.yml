@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-board-app
+  labels:
+    app: message-board-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-board-app
+  template:
+    metadata:
+      labels:
+        app: message-board-app
+    spec:
+      containers:
+        - name: message-board-app
+          image: registry.digitalocean.com/message-board/message-board:0.0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: db_root_password
+              valueFrom:
+                secretKeyRef:
+                  name: message-board-secrets
+                  key: db_root_password
+            - name: db_name
+              value: mysql

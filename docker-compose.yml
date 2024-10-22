@@ -1,14 +1,10 @@
 services:
   app:
-    build: .
+    image: registry.digitalocean.com/message-board/message-board:0.0.1
     links:
       - db
     ports:
       - "5000:5000"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./api
   db:
     image: mysql:5.7
     platform: linux/x86_64
